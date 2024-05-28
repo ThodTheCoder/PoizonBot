@@ -1,5 +1,6 @@
 from currency_converter import CurrencyConverter
 from flask import Flask, request
+import token
 from telebot import types
 import sqlite3 as sql
 import logging
@@ -10,7 +11,7 @@ import os
 
 bot = telebot.TeleBot('6962140661:AAGH5Lf1Ig9-qQ44FOVL4FH1epHJ5nfDR6A')
 currency = CurrencyConverter()
-admin = 742773729
+admin = 755416258
 
 
 @bot.message_handler(commands=['start', 'restart'])
@@ -273,21 +274,4 @@ def CheckOrder(message):
         bot.send_message(message.chat.id, f"<b>У вас нет заказов с таким <u>id</u>!</b>", parse_mode='html')
 
 
-if "HEROKU" in list(os.environ.keys()):
-    logger = telebot.logger
-    telebot.logger.setLevel(logging.INFO)
-
-    server = Flask(__name__)
-    @server.route("/bot", methods=['POST'])
-    def getMessage():
-        bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
-        return "!", 200
-    @server.route("/")
-    def webhook():
-        bot.remove_webhook()
-        bot.set_webhook(url="https://min-gallows.herokuapp.com/bot") # этот url нужно заменить на url вашего Хероку приложения
-        return "?", 200
-    server.run(host="0.0.0.0", port=os.environ.get('PORT', 80))
-else:
-    bot.remove_webhook()
-    bot.polling(none_stop=True)
+bot.polling(none_stop=True)
